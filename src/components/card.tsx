@@ -8,6 +8,7 @@ interface CardProps {
         name: string;
         price: number;
         description: string;
+        image: string;
     };
 }
 
@@ -45,7 +46,7 @@ const Card: React.FC<CardProps> = ({ item }) => {
             </View>
             <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <Image
-                    source={require("../../assets/putharekulu_box_sample.png")}
+                    source={item.image}
                     style={{ width: 100, height: 100, borderRadius: 10 }}
                     resizeMode="contain"
                 />

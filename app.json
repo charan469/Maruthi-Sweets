@@ -23,6 +23,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "842585f4-3905-4ecb-8103-7be132ec4e46"
+      }
+    },
+    "owner": "cherry469"
   }
 }

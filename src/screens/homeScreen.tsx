@@ -9,11 +9,13 @@ const HomeScreen = () => {
       name: "Putharekulu Box",
       price: 150,
       description: "Made of rice paper and dry fruits, jaggery, ghee...more",
+      image: require("../../assets/putharekulu_box_sample.png")
     },
     {
       name: "Putharekulu Box SP",
       price: 230,
       description: "Made of rice paper and dry fruits, jaggery, ghee...more",
+      image: require("../../assets/putharekulu_box_sample2.png")
     }
   ]
   return (

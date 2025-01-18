@@ -12,7 +12,7 @@ const Header: React.FC = () => {
 
     return (
         <View style={styles.header}>
-            <Image source={require('../../assets/Hanuman_Logo.png')} style={styles.headerLogo} resizeMode='contain' />
+            <Image source={require('../../assets/hanuman-logo.png')} style={styles.headerLogo} resizeMode='contain' />
             <Text style={styles.headerTitle}>Sri Maruthi Sweets</Text>
             <TouchableOpacity style={styles.cartContainer} onPress={() =>  navigation.navigate("Cart")}>
                 <Ionicons name="cart-outline" size={28} color="#000" />

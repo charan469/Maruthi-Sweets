@@ -4,11 +4,11 @@
     "slug": "maruthi-sweets",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Hanuman_Logo.png",
+    "icon": "./assets/hanuman-logo-square.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/hanuman-logo-square.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,18 +17,28 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/hanuman-logo-square.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.cherry469.maruthisweets"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/hanuman-logo-square.png"
     },
     "extra": {
       "eas": {
         "projectId": "842585f4-3905-4ecb-8103-7be132ec4e46"
       }
     },
-    "owner": "cherry469"
+    "owner": "cherry469",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/842585f4-3905-4ecb-8103-7be132ec4e46"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ]
   }
 }

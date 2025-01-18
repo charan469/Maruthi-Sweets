@@ -27,7 +27,9 @@ const CartScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedDeliveryPoint, setSelectedDeliveryPoint] = useState("");
   const [deliveryPoints, setDeliveryPoints] = useState<string[]>([]);
-  const [deliveryDate, setDeliveryDate] = useState(new Date());
+  const [deliveryDate, setDeliveryDate] = useState(
+    new Date(new Date().getTime() + 150000000) // Initial delivery date is 1 day ahead of current date
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const cities = [
@@ -57,6 +59,7 @@ const CartScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
       deliveryPoint: string;
       deliveryDate: string;
     };
+    sellerPhone: string;
     totalPrice: number;
     orderDate: string;
   }
@@ -93,8 +96,8 @@ const CartScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
       Alert.alert("Error", "Please fill all the delivery details.");
       return;
     }
-  
-    const orderDetails = {
+
+    const orderDetails: OrderDetails = {
       cartItems: cart,
       deliveryDetails: {
         customerName,
@@ -107,25 +110,25 @@ const CartScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
       totalPrice,
       orderDate: new Date().toISOString(),
     };
-  
+
     dispatch(saveOrder(orderDetails));
     cart.forEach((item) => dispatch(removeItemFromCart(item.name)));
-  
+
     Alert.alert("Success", "Order placed successfully!", [
       {
         text: "OK",
         onPress: () => navigation.navigate("Order History"),
       },
     ]);
-  
+
     setCustomerName("");
     setMobileNumber("");
     setSelectedCity("");
     setSelectedDeliveryPoint("");
     setDeliveryPoints([]);
-    setDeliveryDate(new Date());
+    setDeliveryDate(new Date(new Date().getTime() + 150000000)); // Reset to 1 day ahead
   };
-  
+
   return (
     <ScrollView style={styles.container}>
       {cart.length === 0 ? (

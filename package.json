@@ -27,7 +27,11 @@
     "react-native-screens": "~4.4.0",
     "react-native-vector-icons": "^10.2.0",
     "react-redux": "^9.2.0",
-    "redux": "^5.0.1"
+    "redux": "^5.0.1",
+    "expo-notifications": "~0.29.12",
+    "expo-device": "~7.0.2",
+    "expo-constants": "~17.0.4",
+    "expo-dev-client": "~5.0.10"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

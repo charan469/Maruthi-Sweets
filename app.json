@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/hanuman-logo-square.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.cherry469.maruthisweets"
+      "package": "com.cherry469.maruthisweets",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/hanuman-logo-square.png"
@@ -39,6 +40,9 @@
     },
     "assetBundlePatterns": [
       "**/*"
+    ],
+    "plugins": [
+      "expo-notifications"
     ]
   }
 }

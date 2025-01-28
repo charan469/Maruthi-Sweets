@@ -23,11 +23,13 @@ Notifications.setNotificationHandler({
   }),
 });
 const Tab = createBottomTabNavigator();
-const App=()=> {
+const App = () => {
   const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
   const [notification, setNotification] = useState<Notifications.Notification | undefined>();
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
+  const navigationRef = useRef<any>();
+  const [isAppInitialized, setIsAppInitialized] = useState(false);
 
   useEffect(() => {
     // Register for push notifications
@@ -43,7 +45,23 @@ const App=()=> {
     // Listen for notification responses
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       console.log('Notification Response:', response);
+      if (navigationRef.current) {
+        navigationRef.current.navigate("Order History")
+      }
     });
+    // const handleInitialNotification = async () => {
+    //   const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
+    //   if (lastNotificationResponse) {
+    //     console.log("Last Notification Response:", lastNotificationResponse)
+    //     if (navigationRef.current) {
+    //       navigationRef.current.navigate("Order History")
+    //     }
+    //   }
+    // }
+    // if (!isAppInitialized) {
+    //   handleInitialNotification();
+    //   setIsAppInitialized(true);
+    // }
 
     return () => {
       if (notificationListener.current) {
@@ -58,7 +76,7 @@ const App=()=> {
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <Header />
           <Tab.Navigator
             screenOptions={({ route }) => ({

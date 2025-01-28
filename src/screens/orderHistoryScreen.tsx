@@ -1,9 +1,55 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios"; // Assuming you use Axios for API calls
+import { saveAllOrders } from "../redux/reducers/orderHistoryReducer";
+import { useFocusEffect } from "@react-navigation/native";
+
+const baseUrl = "http://192.168.1.10:5000/api/get-all-orders";
 
 const OrderHistoryScreen = () => {
   const orderHistory = useSelector((state: any) => state.orderHistory.orderHistory);
+  console.log("orderHistory redux------->",orderHistory)
+  const dispatch = useDispatch();
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}`, {
+        headers: {
+          "Cache-Control": "no-cache", // Disable client-side caching
+        },
+        params: {
+          timestamp: new Date().getTime(), // Add a unique query parameter
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  useFocusEffect(
+    useCallback(()=>{
+      const getOrders = async () => {
+        try {
+          const response = await fetchOrders();
+          console.log("Orders fetched:", response);
+          dispatch(saveAllOrders(response));
+        } catch (error) {
+          console.error("Error fetching orders:", error);
+        }
+      };
+    
+      getOrders();
+
+      return () => {
+        console.log("Order history screen unfocused, use cleanup if required");
+      };
+
+    },[])
+  )
+ 
+
+
 
   return (
     <View style={styles.container}>
@@ -17,16 +63,19 @@ const OrderHistoryScreen = () => {
           renderItem={({ item }) => (
             <View style={styles.orderCard}>
               <Text style={styles.orderDate}>
-                Order Date: {new Date(item.orderDate).toLocaleString()}
+                Order Id: {item.order_id}
+              </Text>
+              <Text style={styles.orderDate}>
+                Order Date: {new Date(item.order_date).toLocaleString()}
               </Text>
               <Text style={styles.customerName}>
-                Customer: {item.deliveryDetails.customerName}
+                Customer Name: {item?.name}
               </Text>
-              <Text>Delivery Address: {item.deliveryDetails.city}, {item.deliveryDetails.deliveryPoint}</Text>
-              <Text>Delivery Date: {item.deliveryDetails.deliveryDate}</Text>
-              <Text>Seller Contact: {item.sellerPhone}</Text>
+              <Text>Delivery Address: {item?.city}, {item?.delivery_point}</Text>
+              <Text>Delivery Date: {item?.delivery_date}</Text>
+              <Text>Customer Contact: {item.mobile_number}</Text>
               <FlatList
-                data={item.cartItems}
+                data={item.cart_items}
                 keyExtractor={(cartItem, cartIndex) => cartIndex.toString()}
                 renderItem={({ item: cartItem }) => (
                   <Text>
@@ -36,7 +85,7 @@ const OrderHistoryScreen = () => {
                 )}
               />
               <Text style={styles.totalPrice}>
-                Total Price: Rs. {item.totalPrice}
+                Total Price: Rs. {item.total_price}
               </Text>
             </View>
           )}

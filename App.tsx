@@ -1,18 +1,16 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Header from './src/components/header';
-import HomeScreen from './src/screens/homeScreen';
-import OrderHistoryScreen from './src/screens/orderHistoryScreen';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Provider } from 'react-redux';
 import store from './src/redux/store';
-import CartScreen from './src/screens/cartScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import BottomTabNavigation from './src/navigation/bottomTabNavigation';
+import AddProduct from './src/screens/addProductScreen';
+import HomeScreen from './src/screens/homeScreen';
+import OrderHistoryScreen from './src/screens/orderHistoryScreen';
 import { useState, useEffect, useRef } from 'react';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from './src/utils/registerForPushNotificationsAsync';
-
 
 // Set up the notification handler
 Notifications.setNotificationHandler({
@@ -22,7 +20,9 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
-const Tab = createBottomTabNavigator();
+
+const Stack = createStackNavigator();
+
 const App = () => {
   const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
   const [notification, setNotification] = useState<Notifications.Notification | undefined>();
@@ -62,7 +62,6 @@ const App = () => {
     //   handleInitialNotification();
     //   setIsAppInitialized(true);
     // }
-
     return () => {
       if (notificationListener.current) {
         Notifications.removeNotificationSubscription(notificationListener.current);
@@ -76,46 +75,16 @@ const App = () => {
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        <NavigationContainer ref={navigationRef}>
-          <Header />
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              headerShown: false, // Hides the default tab bar header
-              tabBarStyle: { backgroundColor: '#fff' },
-              tabBarActiveTintColor: '#000', // Active tab color
-              tabBarInactiveTintColor: 'gray', // Inactive tab color
-              tabBarIcon: ({ focused, color, size }) => {
-                let iconName: string = '';
-
-                // Set icons for each tab
-                if (route.name === 'Home') {
-                  iconName = focused ? 'home' : 'home-outline';
-                } else if (route.name === 'Order History') {
-                  iconName = focused ? 'list' : 'list-outline';
-                }
-
-                // Return the icon component
-                return <Ionicons name={iconName} size={size} color={color} />;
-              },
-            })
-            }
-          >
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen
-              name="Cart"
-              component={CartScreen}
-              options={{
-                tabBarIcon: ({ color, size }) => (
-                  <Ionicons name="cart-outline" color={color} size={size} />
-                ),
-              }}
-            />
-            <Tab.Screen name="Order History" component={OrderHistoryScreen} />
-          </Tab.Navigator>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Main" component={BottomTabNavigation} options={{ headerShown: false }} />
+            <Stack.Screen name="AddProduct" component={AddProduct} />
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Order History" component={OrderHistoryScreen} />
+          </Stack.Navigator>
         </NavigationContainer>
       </View>
     </Provider>
-
   );
 }
 export default App;

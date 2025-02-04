@@ -1,78 +1,76 @@
-import React from "react";
-import { View, Image, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useDispatch, useSelector } from 'react-redux';
-import { addItemToCart, updateItemQuantity, removeItemFromCart } from '../redux/actions/cartActions'; // Import remove action
+import axios from "axios";
+import React, { useState } from "react";
+import { View, Image, Text, StyleSheet, TouchableOpacity, Switch, Alert } from "react-native";
+import { API_BASE_URL } from '@env';
 
 interface CardProps {
     item: {
-        name: string;
-        price: number;
-        description: string;
-        image: string;
+        product_id: string;
+        product_name: string;
+        product_price: number;
+        product_image_url: string;
+        show_available: boolean;
     };
 }
-
+interface Item {
+    product_id: string;
+    product_name: string;
+    product_price: number;
+    product_image_url: string;
+    show_available: boolean;
+}
 const Card: React.FC<CardProps> = ({ item }) => {
-    const dispatch = useDispatch();
-    const cart = useSelector((state: any) => state.cart.cart);
+    const [isAvailable, setIsAvailable] = useState(item.show_available)
 
-    // Find the item in the cart
-    const cartItem = cart.find((cartItem: any) => cartItem.name === item.name);
-
-    const handleAddItem = () => {
-        dispatch(addItemToCart(item)); // Add item to the cart with quantity 1
-    };
-
-    const handleIncreaseQuantity = () => {
-        if (cartItem) {
-            dispatch(updateItemQuantity(cartItem, cartItem.quantity + 1)); // Increase quantity
+    const toggleSwitch = async (item: Item): Promise<void> => {
+        try {
+            const { product_id, show_available } = item; // Replace with actual product ID
+            console.log("ppppp------------",product_id,show_available)
+            const response = await axios.put(`${API_BASE_URL}change-product-availability`, { product_id: product_id, show_available: show_available });
+            setIsAvailable(!isAvailable);
+        } catch (error) {
+            console.error("Error changing availability:", error);
+            Alert.alert("Error", "Failed to update product availability.");
         }
-    };
+    }
 
-    const handleDecreaseQuantity = () => {
-        if (cartItem && cartItem.quantity === 1) {
-            dispatch(removeItemFromCart(cartItem.name)); // Remove item from cart when quantity is 1
-        } else if (cartItem && cartItem.quantity > 1) {
-            dispatch(updateItemQuantity(cartItem, cartItem.quantity - 1)); // Decrease quantity
+
+    const handleDelete = async (item: Item): Promise<void> => {
+        try {
+            console.log("item----------------------", item)
+            const { product_id } = item; // Replace with actual product ID
+            const response = await axios.delete(`${API_BASE_URL}delete-product`, {
+                data: { product_id }, // `data` is required for DELETE requests in Axios
+            });
+
+            Alert.alert("Success", response.data.message);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            Alert.alert("Error", "Failed to delete product.");
         }
-    };
+    }
 
     return (
         <View style={styles.card}>
             <View style={{ flex: 1 }}>
-                <Text style={styles.itemTitle}>{item.name}</Text>
-                <Text style={styles.itemPrice}>Rs{item.price}</Text>
-                <Text style={styles.itemDescription}>{item.description}</Text>
+                <Text style={styles.itemTitle}>{item.product_name}</Text>
+                <Text style={styles.itemPrice}>Rs{item.product_price}</Text>
             </View>
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <Image
-                    source={item.image}
+            {/* <Image
+                    source={item.product_image_url}
                     style={{ width: 100, height: 100, borderRadius: 10 }}
                     resizeMode="contain"
+                /> */}
+            <View style={{ flexDirection:'row',justifyContent: 'space-between', alignItems: "center" }}>
+                
+                 <TouchableOpacity style={{backgroundColor:'red',padding:8,borderRadius:8}} onPress={() => { handleDelete(item) }}>
+                    <Text style={{color:'white'}}>Delete</Text>
+                </TouchableOpacity>
+                <Switch
+                    onValueChange={()=>toggleSwitch(item)}
+                    value={isAvailable}
                 />
-                {cartItem && cartItem.quantity > 0 ? (
-                    // If the item is in the cart and has quantity > 0, show quantity controls
-                    <View style={styles.quantityControls}>
-                        <TouchableOpacity
-                            style={styles.quantityButton}
-                            onPress={handleDecreaseQuantity}
-                        >
-                            <Text style={styles.quantityText}>-</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.quantityValue}>{cartItem.quantity}</Text>
-                        <TouchableOpacity
-                            style={styles.quantityButton}
-                            onPress={handleIncreaseQuantity}
-                        >
-                            <Text style={styles.quantityText}>+</Text>
-                        </TouchableOpacity>
-                    </View>
-                ) : (
-                    // If the item is not in the cart, show "ADD" button
-                    <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-                        <Text>ADD</Text>
-                    </TouchableOpacity>
-                )}
+               
             </View>
         </View>
     );
@@ -80,7 +78,7 @@ const Card: React.FC<CardProps> = ({ item }) => {
 
 const styles = StyleSheet.create({
     card: {
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "space-between",
         backgroundColor: "#edf2f9",
         borderRadius: 10,

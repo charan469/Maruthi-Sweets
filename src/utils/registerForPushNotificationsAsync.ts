@@ -2,13 +2,13 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Alert } from 'react-native';
+import { API_BASE_URL, NOTIFICATION_URL } from '@env';
 
 export function handleRegistrationError(errorMessage: string) {
     alert(errorMessage);
     throw new Error(errorMessage);
   }
 
-const serverUrl = 'http://localhost:5000';
 // Function to register for push notifications
 export async function registerForPushNotificationsAsync(): Promise<string | undefined> {
   if (Device.isDevice) {
@@ -37,7 +37,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | unde
       console.log('Expo Push Token:', data);
 
       // Send token to backend
-      await fetch(`${serverUrl}/api/save-token`, {
+      await fetch(`${API_BASE_URL}save-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export async function sendPushNotification(expoPushToken: string) {
   };
 
   try {
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+    const response = await fetch(`${NOTIFICATION_URL}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',

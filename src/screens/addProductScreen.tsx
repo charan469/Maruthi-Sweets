@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
+import { useDispatch } from 'react-redux';
+import { addNewProduct} from '../redux/actions/productsActions';
 
 const AddProduct = ({ navigation }) => {
+    const dispatch = useDispatch();
     const [productName, setProductName] = useState('');
     const [productPrice, setProductPrice] = useState('');
     const [productImageUrl, setProductImageUrl] = useState('');
@@ -22,6 +25,8 @@ const AddProduct = ({ navigation }) => {
                 product_image_url: productImageUrl,
                 show_available: showAvailable
             });
+            console.log("new product--------------->",response.data)
+            dispatch(addNewProduct(response.data.product))
             setProductName('');
             setProductPrice('');
             setProductImageUrl('');

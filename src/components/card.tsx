@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { View, Image, Text, StyleSheet, TouchableOpacity, Switch, Alert } from "react-native";
 import { API_BASE_URL } from '@env';
+import { deleteProduct, updateProductAvailability } from "../redux/actions/productsActions";
+import { useDispatch } from "react-redux";
 
 interface CardProps {
     item: {
@@ -20,19 +22,20 @@ interface Item {
     show_available: boolean;
 }
 const Card: React.FC<CardProps> = ({ item }) => {
-    const [isAvailable, setIsAvailable] = useState(item.show_available)
-
+    const dispatch = useDispatch();
     const toggleSwitch = async (item: Item): Promise<void> => {
         try {
-            const { product_id, show_available } = item; // Replace with actual product ID
-            console.log("ppppp------------",product_id,show_available)
-            const response = await axios.put(`${API_BASE_URL}change-product-availability`, { product_id: product_id, show_available: show_available });
-            setIsAvailable(!isAvailable);
+          const { product_id, show_available } = item;
+          await axios.put(`${API_BASE_URL}change-product-availability`, {
+            product_id,
+            newStatus: !show_available, // Send the toggled value
+          });
+          dispatch(updateProductAvailability(product_id, !show_available));
         } catch (error) {
-            console.error("Error changing availability:", error);
-            Alert.alert("Error", "Failed to update product availability.");
+          console.error("Error changing availability:", error);
+          Alert.alert("Error", "Failed to update product availability.");
         }
-    }
+      };
 
 
     const handleDelete = async (item: Item): Promise<void> => {
@@ -42,7 +45,7 @@ const Card: React.FC<CardProps> = ({ item }) => {
             const response = await axios.delete(`${API_BASE_URL}delete-product`, {
                 data: { product_id }, // `data` is required for DELETE requests in Axios
             });
-
+            dispatch(deleteProduct(product_id));
             Alert.alert("Success", response.data.message);
         } catch (error) {
             console.error("Error deleting product:", error);
@@ -61,16 +64,16 @@ const Card: React.FC<CardProps> = ({ item }) => {
                     style={{ width: 100, height: 100, borderRadius: 10 }}
                     resizeMode="contain"
                 /> */}
-            <View style={{ flexDirection:'row',justifyContent: 'space-between', alignItems: "center" }}>
-                
-                 <TouchableOpacity style={{backgroundColor:'red',padding:8,borderRadius:8}} onPress={() => { handleDelete(item) }}>
-                    <Text style={{color:'white'}}>Delete</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: "center" }}>
+
+                <TouchableOpacity style={{ backgroundColor: 'red', padding: 8, borderRadius: 8 }} onPress={() => { handleDelete(item) }}>
+                    <Text style={{ color: 'white' }}>Delete</Text>
                 </TouchableOpacity>
                 <Switch
-                    onValueChange={()=>toggleSwitch(item)}
-                    value={isAvailable}
+                    onValueChange={() => toggleSwitch(item)}
+                    value={item.show_available}
                 />
-               
+
             </View>
         </View>
     );

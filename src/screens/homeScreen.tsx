@@ -3,8 +3,11 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import Card from '../components/card';
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProducts } from '../redux/actions/productsActions';
 
 interface Product {
+  product_id: number;
   product_name: string;
   product_price: number;
   product_image_url: string;
@@ -12,19 +15,19 @@ interface Product {
 }
 
 const HomeScreen = ({ navigation }) => {
-
-
-  const [allProducts, setAllProducts] = React.useState<Product[]>([]);
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.products.products); 
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
-  const fetchAllProducts = async () => {
+  const fetchAllProducts = async (dispatch) => {
     try {
       const response = await axios.get(`${API_BASE_URL}get-all-products`, {
         headers: {
           "Cache-Control": "no-cache",
         },
       });
-      setAllProducts(response.data);
+      dispatch(setProducts(response.data));
+
     } catch (err) {
       console.error("Error fetching all products:", err);
       setError("Failed to fetch all products. Please try again later.");
@@ -34,8 +37,10 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchAllProducts();
-  }, []);
+    fetchAllProducts(dispatch);
+  }, [dispatch]);
+
+  const renderItem = React.useCallback(({ item }) => <Card item={item} />, []);
   return (
     <View style={styles.screenContainer}>
       <Text style={{ fontSize: 24, fontStyle: 'italic', padding: 8, fontWeight: '300' }}>
@@ -43,10 +48,10 @@ const HomeScreen = ({ navigation }) => {
       </Text>
 
       <FlatList
-        data={allProducts}
-        renderItem={({ item }) => <Card item={item} />}
-        keyExtractor={(item) => item.product_name}
-      />
+  data={products}
+  renderItem={renderItem}
+  keyExtractor={(item) => item.product_id.toString()} // Use product_id instead of name
+/>
 
       <TouchableOpacity
         style={styles.addButton}

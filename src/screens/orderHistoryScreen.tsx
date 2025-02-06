@@ -7,9 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { API_BASE_URL } from '@env';
 
 const OrderHistoryScreen = () => {
-  console.log(API_BASE_URL);
   const orderHistory = useSelector((state: any) => state.orderHistory.orderHistory);
-  console.log("orderHistory redux------->", orderHistory)
   const dispatch = useDispatch();
   const fetchOrders = async () => {
     try {
@@ -33,8 +31,8 @@ const OrderHistoryScreen = () => {
       const { order_id, order_status } = item; // Replace with actual product ID
       console.log("changeOrderStatus------------", order_id, order_status)
       const response = await axios.put(`${API_BASE_URL}change-order-status`,
-       { order_id: order_id, order_status: "in-transit" });
-     // setIsAvailable(!isAvailable);
+        { order_id: order_id, order_status: "New Order" });
+      // setIsAvailable(!isAvailable);
     } catch (error) {
       console.error("Error changing OrderStatus:", error);
       Alert.alert("Error", "Failed to update Order Status.");
@@ -62,16 +60,42 @@ const OrderHistoryScreen = () => {
     }, [])
   )
 
-
-
+  const tabs = [
+    { id: "1", title: "New Order" },
+    { id: "2", title: "Accepted" },
+    { id: "3", title: "Delivered" },
+  ];
+  const [selectedTab, setSelectedTab] = useState(tabs[0].id);
 
   return (
     <View style={styles.container}>
+      <View>
+        <FlatList
+          data={tabs}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                selectedTab === item.id && styles.selectedTab,
+              ]}
+              onPress={() => setSelectedTab(item.id)}
+            >
+              <Text style={[styles.tabText, selectedTab === item.id && styles.selectedTabText]}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
       {orderHistory.length === 0 ? (
         <Text style={styles.emptyText}>No orders found.</Text>
       ) : (
         <FlatList
-          data={orderHistory}
+          data={orderHistory.filter((order) => order.order_status === tabs.find(tab => tab.id === selectedTab).title)}
           keyExtractor={(item, index) => index.toString()}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
@@ -85,18 +109,18 @@ const OrderHistoryScreen = () => {
               <Text style={styles.customerName}>
                 Customer Name: {item?.name}
               </Text>
-              <Text>Delivery Address: {item?.city}, {item?.delivery_point}</Text>
-              <Text>Delivery Date: {item?.delivery_date}</Text>
-              <Text>Customer Contact: {item.mobile_number}</Text>
-              <Text>Order Status: {item.order_status}</Text>
-              <TouchableOpacity style={{padding:10,backgroundColor:'green'}} onPress={() => changeOrderStatus(item)}>
+              <Text style={styles.deliveryDetails}>Delivery Address: {item?.city}, {item?.delivery_point}</Text>
+              <Text style={styles.deliveryDetails}>Delivery Date: {item?.delivery_date}</Text>
+              <Text style={styles.deliveryDetails}>Customer Contact: {item.mobile_number}</Text>
+              <Text style={styles.deliveryDetails}>Order Status: {item.order_status}</Text>
+              <TouchableOpacity style={[styles.deliveryDetails, { padding: 10, backgroundColor: 'green' }]} onPress={() => changeOrderStatus(item)}>
                 <Text>Change Order Status</Text>
               </TouchableOpacity>
               <FlatList
                 data={item.cart_items}
                 keyExtractor={(cartItem, cartIndex) => cartIndex.toString()}
                 renderItem={({ item: cartItem }) => (
-                  <Text>
+                  <Text style={styles.deliveryDetails}>
                     {cartItem.product_name} x {cartItem.quantity} = Rs.{" "}
                     {cartItem.product_price * cartItem.quantity}
                   </Text>
@@ -115,8 +139,9 @@ const OrderHistoryScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 10,
+    backgroundColor: "pink",
+    flex: 1,
   },
   emptyText: {
     textAlign: "center",
@@ -135,18 +160,42 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   orderDate: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
   },
   customerName: {
-    fontSize: 16,
+    fontSize: 20,
+    marginBottom: 5,
+  },
+  deliveryDetails: {
+    fontSize: 20,
     marginBottom: 5,
   },
   totalPrice: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
     marginTop: 10,
+  },
+  tab: {
+    padding: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+    height: 50,
+    //backgroundColor: "pink",
+    marginBottom: 0
+
+  },
+  selectedTab: {
+    padding: 10,
+    borderBottomColor: "blue",
+  },
+  tabText: {
+    fontSize: 24,
+    color: "gray",
+  },
+  selectedTabText: {
+    color: "blue",
   },
 });
 

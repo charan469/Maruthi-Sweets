@@ -16,7 +16,7 @@ const BottomTabNavigation = () => {
             <Tab.Navigator
                 screenOptions={({ route }) => ({
                     headerShown: false, // Hides the default tab bar header
-                    tabBarStyle: { backgroundColor: '#fff' },
+                    tabBarStyle: { backgroundColor: '#fff',height:60 }, // Tab bar style
                     tabBarActiveTintColor: '#000', // Active tab color
                     tabBarInactiveTintColor: 'gray', // Inactive tab color
                     tabBarIcon: ({ focused, color, size }) => {
@@ -28,12 +28,13 @@ const BottomTabNavigation = () => {
                             iconName = focused ? 'list' : 'list-outline';
                         }
                         // Return the icon component
-                        return <Ionicons name={iconName} size={size} color={color} />;
+                        return <Ionicons name={iconName} size={24} color={color} />;
                     },
+                    tabBarLabelStyle: { fontSize: 16, fontWeight: 'semibold' },
                 })
                 }
             >
-                <Tab.Screen name="Home" component={HomeScreen} />
+                <Tab.Screen name="Home"  component={HomeScreen}  />
                 <Tab.Screen name="Order History" component={OrderHistoryScreen} />
             </Tab.Navigator>
         </View>

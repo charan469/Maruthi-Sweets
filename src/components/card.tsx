@@ -25,17 +25,17 @@ const Card: React.FC<CardProps> = ({ item }) => {
     const dispatch = useDispatch();
     const toggleSwitch = async (item: Item): Promise<void> => {
         try {
-          const { product_id, show_available } = item;
-          await axios.put(`${API_BASE_URL}change-product-availability`, {
-            product_id,
-            newStatus: !show_available, // Send the toggled value
-          });
-          dispatch(updateProductAvailability(product_id, !show_available));
+            const { product_id, show_available } = item;
+            await axios.put(`${API_BASE_URL}change-product-availability`, {
+                product_id,
+                newStatus: !show_available, // Send the toggled value
+            });
+            dispatch(updateProductAvailability(product_id, !show_available));
         } catch (error) {
-          console.error("Error changing availability:", error);
-          Alert.alert("Error", "Failed to update product availability.");
+            console.error("Error changing availability:", error);
+            Alert.alert("Error", "Failed to update product availability.");
         }
-      };
+    };
 
 
     const handleDelete = async (item: Item): Promise<void> => {
@@ -55,15 +55,22 @@ const Card: React.FC<CardProps> = ({ item }) => {
 
     return (
         <View style={styles.card}>
-            <View style={{ flex: 1 }}>
-                <Text style={styles.itemTitle}>{item.product_name}</Text>
-                <Text style={styles.itemPrice}>Rs{item.product_price}</Text>
-            </View>
-            {/* <Image
-                    source={item.product_image_url}
+            <View style={{
+                flexDirection: 'row',
+                justifyContent:'space-between',
+                alignItems:'center',
+            }}>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.itemTitle}>{item.product_name}</Text>
+                    <Text style={styles.itemPrice}>Rs{item.product_price}</Text>
+                </View>
+                <Image
+                    source={{ uri: item.product_image_url }}
+
                     style={{ width: 100, height: 100, borderRadius: 10 }}
                     resizeMode="contain"
-                /> */}
+                /></View>
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: "center" }}>
 
                 <TouchableOpacity style={{ backgroundColor: 'red', padding: 8, borderRadius: 8 }} onPress={() => { handleDelete(item) }}>

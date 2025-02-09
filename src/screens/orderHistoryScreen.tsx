@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios"; // Assuming you use Axios for API calls
 import { saveAllOrders } from "../redux/reducers/orderHistoryReducer";
@@ -8,36 +8,36 @@ import { API_BASE_URL } from '@env';
 
 const OrderHistoryScreen = () => {
   const orderHistory = useSelector((state: any) => state.orderHistory.orderHistory);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+
   const fetchOrders = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(`${API_BASE_URL}get-all-orders`, {
         headers: {
-          "Cache-Control": "no-cache", // Disable client-side caching
+          "Cache-Control": "no-cache",
         },
-        // params: {
-        //   timestamp: new Date().getTime(), // Add a unique query parameter
-        // },
       });
-      console.log("orderHistory-----------------1", response.data)
+      setIsLoading(false);
       return response.data;
     } catch (error) {
+      setIsLoading(false);
       throw error;
     }
   };
 
   const changeOrderStatus = async (item) => {
     try {
-      const { order_id, order_status } = item; // Replace with actual product ID
-      console.log("changeOrderStatus------------", order_id, order_status)
-      const response = await axios.put(`${API_BASE_URL}change-order-status`,
-        { order_id: order_id, order_status: "New Order" });
-      // setIsAvailable(!isAvailable);
+      setIsLoading(true);
+      const { order_id, order_status } = item;
+      await axios.put(`${API_BASE_URL}change-order-status`, { order_id, order_status: "Accepted" });
+      setIsLoading(false);
     } catch (error) {
-      console.error("Error changing OrderStatus:", error);
+      setIsLoading(false);
       Alert.alert("Error", "Failed to update Order Status.");
     }
-  }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -58,12 +58,13 @@ const OrderHistoryScreen = () => {
       };
 
     }, [])
-  )
+  );
 
   const tabs = [
-    { id: "1", title: "New Order" },
-    { id: "2", title: "Accepted" },
-    { id: "3", title: "Delivered" },
+    { id: "1", title: "placed" },
+    { id: "2", title: "New Order" },
+    { id: "3", title: "Accepted" },
+    { id: "4", title: "Delivered" },
   ];
   const [selectedTab, setSelectedTab] = useState(tabs[0].id);
 
@@ -77,10 +78,7 @@ const OrderHistoryScreen = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[
-                styles.tab,
-                selectedTab === item.id && styles.selectedTab,
-              ]}
+              style={[styles.tab, selectedTab === item.id && styles.selectedTab]}
               onPress={() => setSelectedTab(item.id)}
             >
               <Text style={[styles.tabText, selectedTab === item.id && styles.selectedTabText]}>
@@ -91,7 +89,9 @@ const OrderHistoryScreen = () => {
         />
       </View>
 
-      {orderHistory.length === 0 ? (
+      {isLoading ? (
+        <ActivityIndicator size="large" color="blue" style={styles.loader} />
+      ) : orderHistory.length === 0 ? (
         <Text style={styles.emptyText}>No orders found.</Text>
       ) : (
         <FlatList
@@ -100,35 +100,26 @@ const OrderHistoryScreen = () => {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.orderCard}>
-              <Text style={styles.orderDate}>
-                Order Id: {item.order_id}
-              </Text>
-              <Text style={styles.orderDate}>
-                Order Date: {new Date(item.order_date).toLocaleString()}
-              </Text>
-              <Text style={styles.customerName}>
-                Customer Name: {item?.name}
-              </Text>
+              <Text style={styles.orderDate}>Order Id: {item.order_id}</Text>
+              <Text style={styles.orderDate}>Order Date: {new Date(item.order_date).toLocaleString()}</Text>
+              <Text style={styles.customerName}>Customer Name: {item?.name}</Text>
               <Text style={styles.deliveryDetails}>Delivery Address: {item?.city}, {item?.delivery_point}</Text>
               <Text style={styles.deliveryDetails}>Delivery Date: {item?.delivery_date}</Text>
               <Text style={styles.deliveryDetails}>Customer Contact: {item.mobile_number}</Text>
               <Text style={styles.deliveryDetails}>Order Status: {item.order_status}</Text>
-              <TouchableOpacity style={[styles.deliveryDetails, { padding: 10, backgroundColor: 'green' }]} onPress={() => changeOrderStatus(item)}>
-                <Text>Change Order Status</Text>
+              <TouchableOpacity style={styles.changeStatusButton} onPress={() => changeOrderStatus(item)}>
+                <Text style={styles.buttonText}>Change Order Status</Text>
               </TouchableOpacity>
               <FlatList
                 data={item.cart_items}
                 keyExtractor={(cartItem, cartIndex) => cartIndex.toString()}
                 renderItem={({ item: cartItem }) => (
                   <Text style={styles.deliveryDetails}>
-                    {cartItem.product_name} x {cartItem.quantity} = Rs.{" "}
-                    {cartItem.product_price * cartItem.quantity}
+                    {cartItem.product_name} x {cartItem.quantity} = Rs. {cartItem.product_price * cartItem.quantity}
                   </Text>
                 )}
               />
-              <Text style={styles.totalPrice}>
-                Total Price: Rs. {item.total_price}
-              </Text>
+              <Text style={styles.totalPrice}>Total Price: Rs. {item.total_price}</Text>
             </View>
           )}
         />
@@ -147,6 +138,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 18,
     color: "gray",
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   orderCard: {
     padding: 10,
@@ -182,12 +178,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
     height: 50,
-    //backgroundColor: "pink",
-    marginBottom: 0
-
   },
   selectedTab: {
-    padding: 10,
     borderBottomColor: "blue",
   },
   tabText: {
@@ -196,6 +188,16 @@ const styles = StyleSheet.create({
   },
   selectedTabText: {
     color: "blue",
+  },
+  changeStatusButton: {
+    padding: 10,
+    backgroundColor: 'green',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 

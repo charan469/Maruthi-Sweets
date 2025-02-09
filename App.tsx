@@ -39,6 +39,7 @@ const App = () => {
 
     // Listen for incoming notifications
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      console.log("notification received")
       setNotification(notification);
     });
 

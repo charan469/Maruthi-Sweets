@@ -41,9 +41,9 @@ const Card: React.FC<CardProps> = ({ item }) => {
     const handleDelete = async (item: Item): Promise<void> => {
         try {
             console.log("item----------------------", item)
-            const { product_id } = item; // Replace with actual product ID
+            const { product_id, product_image_url } = item; // Replace with actual product ID
             const response = await axios.delete(`${API_BASE_URL}delete-product`, {
-                data: { product_id }, // `data` is required for DELETE requests in Axios
+                data: { product_id, product_image_url }, // `data` is required for DELETE requests in Axios
             });
             dispatch(deleteProduct(product_id));
             Alert.alert("Success", response.data.message);

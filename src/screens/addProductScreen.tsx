@@ -122,7 +122,9 @@ const AddProduct = ({ navigation }) => {
             setProductName('');
             setProductPrice('');
             setImageUri(null);
-            Alert.alert("Success", "Product added successfully!");
+            Alert.alert("Success", "Product added successfully!", [
+                { text: "OK", onPress: () => navigation.navigate("Main") }
+              ]);
         } catch (error) {
             console.error("Error adding product:", error.response ? error.response.data : error);
             Alert.alert("Error", "Failed to add product. Please try again.");
